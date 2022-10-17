@@ -6,22 +6,26 @@
 //
 
 import SwiftUI
+import Combine
 
 let dateFormatter = DateFormatter()
 
-class NoteItem1: ObservableObject {
-    
-}
+//class ObservableModel<T>: NSObject, ObservableObject {
+//
+//    public let objectWillChange = PassthroughSubject<Void, Never>()
+//    @Published var observedResponse: T? {
+//        willSet {
+//            self.objectWillChange.send()
+//        }
+//    }
+//    public override init() {
+//        super.init()
+//    }
+//}
 
-class NoteItem: ObservableObject{
-    internal init(id: Int, text: String, date: Date = Date()) {
-        self.id = id
-        self.text = text
-        self.date = date
-    }
-    
+struct NoteItem: Identifiable, Codable {
     let id: Int
-     let text: String
+    let text: String
     var date = Date()
     var dateText: String {
         dateFormatter.dateFormat = "MMM d yyyy, h:mm a"
@@ -37,22 +41,16 @@ struct PopUpView: View {
     /// - Tag: UndoManager
     @Environment(\.undoManager) var undoManager
     
-    #if os(iOS) // Edit mode doesn't exist in macOS.
+#if os(iOS) // Edit mode doesn't exist in macOS.
     @Environment(\.editMode) var editMode
-    #endif // os(iOS)
+#endif // os(iOS)
     
     /// The internal selection state.
     @State private var selection = Set<UUID>()
+    // @ObservedObject var observedItems: ObservableModel<[NoteItem]> = ObservableModel()
     
-    @StateObject var items: [NoteItem] = {
-        guard let data = UserDefaults.standard.data(forKey: "notes") else { return [] }
-        if let json = try? JSONDecoder().decode([NoteItem].self, from: data) {
-            return json
-        }
-        return []
-    }()
     
-
+    @State var items: [NoteItem] = []
     
     @State var taskText: String = ""
     
@@ -67,18 +65,24 @@ struct PopUpView: View {
               secondaryButton: .cancel())
     }
     
-//    var inputView: some View {
-//        HStack {
-//            TextField("Write a note ...", text: $taskText)
-//                .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-//                .clipped()
-//            Button(action: didTapAddTask, label: { Text("Add") }).padding(8)
-//        }
-//    }
+    var inputView: some View {
+        HStack {
+            TextField("Write a note ...", text: $taskText)
+                .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                .clipped()
+            Button {
+                didTapAddTask()
+            } label: {
+                Text("Add")
+            }
+            
+            //            Button(action: didTapAddTask, label: { Text("Add") }).padding(8)
+        }
+    }
     
     var body: some View {
         VStack { // Copied from a notepad program on gitHub
-            //inputView
+            inputView
             Divider()
             List(items) { item in
                 VStack(alignment: .leading) {
@@ -89,7 +93,7 @@ struct PopUpView: View {
                     Text(item.dateText)
                         .font(.subheadline)
                     Text(items.debugDescription)
-                }
+                }.onTapGesture{}
                 .onLongPressGesture {
                     self.itemToDelete = item
                     self.showAlert = true
@@ -99,66 +103,71 @@ struct PopUpView: View {
                 alert
             })
         } // VStack
+        .onAppear {
+            items = UserDefaultManager.shared.getNotesList()
+        }
         .padding(20)
         .navigationBarTitle(Text("Appreciate Yourself"))
     } // body
-        
-    mutating func didTapAddTask() {
-            let id = items.reduce(0) { max($0, $1.id) } + 1
-            items.insert(NoteItem(id: id, text: taskText), at: 0)
-            taskText = ""
-            print("didTapAddTask: saving")
-            save()
-        }
-        
+    
+    
+    
+    func didTapAddTask() {
+        let id = items.reduce(0) { max($0, $1.id) } + 1
+        items.insert(NoteItem(id: id, text: taskText), at: 0)
+        taskText = ""
+        print("didTapAddTask: saving")
+        save()
+    }
+    
     mutating func deleteNote() {
-            guard let itemToDelete = itemToDelete else { return }
+        guard let itemToDelete = itemToDelete else { return }
         items = items.filter { $0.id != itemToDelete.id }
-            save()
-        }
-        
-        func save() {
-            guard let data = try? JSONEncoder().encode(items) else { return }
-            UserDefaults.standard.set(data, forKey: "notes")
-            print(items)
-        }
-        
-//        VStack {
-//                List(selection: $selection) {
-//                    // Iterate over a collection of bindings to the items.
-//                    ForEach($document.checklist.items) { $item in
-//                        ChecklistRow(item: $item) {
-//                            // The checkbox toggle action.
-//                            document.toggleItem($item.wrappedValue, undoManager: undoManager)
-//                        } onTextCommit: { oldTitle in
-//                            // The title changed the commit action.
-//                            document.registerUndoTitleChange(for: $item.wrappedValue, oldTitle: oldTitle, undoManager: undoManager)
-//                        }
-//                    }
-//                    .onDelete(perform: onDelete)
-//                    .onMove(perform: onMove)
-//                } // List
-//
-//                .toolbar {
-//                    ToolbarItem(placement: .navigationBarTrailing) {
-//                        addButton
-//                            .disabled(editMode?.wrappedValue == .active ? true : false)
-//                    }
-//                    ToolbarItem(placement: .navigationBarTrailing) {
-//                        EditButton()
-//                    }
-//                }
-//
-//                Button("save") {
-//                    UserDefaultManager.shared.saveNotes(key: "Durgesh", checklist: document.checklist) { Success in
-//                        print("Sucess:\(Success)")
-//                    }
-//                }
-//        } //VStack
-//        .padding(20)
-//        .navigationBarTitle(Text("Appreciate Yourself"))
-        
-//    } // body
+        save()
+    }
+    
+    func save() {
+        guard let data = try? JSONEncoder().encode(items) else { return }
+        UserDefaults.standard.set(data, forKey: "notes")
+        print(items)
+    }
+    
+    //        VStack {
+    //                List(selection: $selection) {
+    //                    // Iterate over a collection of bindings to the items.
+    //                    ForEach($document.checklist.items) { $item in
+    //                        ChecklistRow(item: $item) {
+    //                            // The checkbox toggle action.
+    //                            document.toggleItem($item.wrappedValue, undoManager: undoManager)
+    //                        } onTextCommit: { oldTitle in
+    //                            // The title changed the commit action.
+    //                            document.registerUndoTitleChange(for: $item.wrappedValue, oldTitle: oldTitle, undoManager: undoManager)
+    //                        }
+    //                    }
+    //                    .onDelete(perform: onDelete)
+    //                    .onMove(perform: onMove)
+    //                } // List
+    //
+    //                .toolbar {
+    //                    ToolbarItem(placement: .navigationBarTrailing) {
+    //                        addButton
+    //                            .disabled(editMode?.wrappedValue == .active ? true : false)
+    //                    }
+    //                    ToolbarItem(placement: .navigationBarTrailing) {
+    //                        EditButton()
+    //                    }
+    //                }
+    //
+    //                Button("save") {
+    //                    UserDefaultManager.shared.saveNotes(key: "Durgesh", checklist: document.checklist) { Success in
+    //                        print("Sucess:\(Success)")
+    //                    }
+    //                }
+    //        } //VStack
+    //        .padding(20)
+    //        .navigationBarTitle(Text("Appreciate Yourself"))
+    
+    //    } // body
     /// Adds a new item to the list.
     var addButton: some View {
         Button(action: {

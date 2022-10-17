@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
-   
+    
     @State var items: [NoteItem] = {
-            guard let data = UserDefaults.standard.data(forKey: "notes") else { return [] }
-            if let json = try? JSONDecoder().decode([NoteItem].self, from: data) {
-                return json
-            }
-            return []
-        }()
+        guard let data = UserDefaults.standard.data(forKey: "notes") else { return [] }
+        if let json = try? JSONDecoder().decode([NoteItem].self, from: data) {
+            return json
+        }
+        return []
+    }()
     
     @State private var selection = 0
     
@@ -36,29 +36,29 @@ struct ContentView: View {
                     Text("Search")
                 }
                 .tag(1)
-
-//            PhotosView()
-//                .tabItem {
-//                    Image(systemName: "photo.fill")
-//                    Text("Photos")
-//                }
-//                .tag(2)
-
+            
+            //            PhotosView()
+            //                .tabItem {
+            //                    Image(systemName: "photo.fill")
+            //                    Text("Photos")
+            //                }
+            //                .tag(2)
+            
             MessageView()
                 .tabItem {
                     Image(systemName: "list.star")
                     Text("List")
                 }
                 .tag(3)
-
+            
             ProfileView(selection: {
                 selection = (selection + 4) % 5
             })
-                .tabItem {
-                    Image(systemName: "person.crop.circle.fill")
-                    Text("Profile")
-                }
-                .tag(4)
+            .tabItem {
+                Image(systemName: "person.crop.circle.fill")
+                Text("Profile")
+            }
+            .tag(4)
             
         } //TabView
         .accentColor(.blue) //Active tab color
@@ -85,41 +85,50 @@ struct HomeView: View { // HOME SCREEN
     @State private var half = false
     @State private var dim = false
     @State var message = ""
+    @State var items: [NoteItem] = []
     
     var body: some View {
         NavigationView {
-            ZStack {
-                VStack (alignment: .leading, spacing: 5) {
-                    NavigationLink {
-                        PopUpView(message: $message).environmentObject(ChecklistDocument())
-                    } label: {
-                        Image("IconWrite1")
-                            .imageScale(.large)
-                            .scaleEffect(0.15)
-                            .position(x:200, y:60)
-                    }
-                    // DS: Adding GlassJar Image and positioning it
-                    Image("GlassJar")
+            VStack (alignment: .center, spacing: 5) {
+                NavigationLink {
+                    PopUpView(message: $message).environmentObject(ChecklistDocument())
+                } label: {
+                    Image("IconWrite1")
                         .imageScale(.large)
-                        .foregroundColor(.accentColor)
-                        .rotationEffect(.radians(0))
-                        .scaleEffect(0.6)
-                        .position(x: 200, y: 130)
-                }.padding(.bottom, 20) //Vstack - padding creates space from all directions
+                        .scaleEffect(0.15)
+                        .position(x:200, y:60)
+                }
+                // DS: Adding GlassJar Image and positioning it
+                Spacer()
+                Image("GlassJar")
+                    .resizable()
+                //Define which method to use to keep the original dimensions when resizing
+                    .aspectRatio(contentMode: .fit)
+                //Declare the frame for your image
+                    .frame(width: 250, height: 300)
                 
-            } // ZStack
+                    .foregroundColor(.accentColor)
+                Spacer()
+                Text("Total messages = \(items.count)")
+                // .rotationEffect(.radians(0))
+                // .scaleEffect(0.6)
+                //.position(x: 200, y: 130)
+            }.padding(.bottom, 20) //Vstack - padding creates space from all directions
+                .onAppear {
+                    items = UserDefaultManager.shared.getNotesList()
+                }
             
-            .navigationBarTitle(Text("Self Appreciation Jar"))
-            .navigationBarTitleDisplayMode(.large)
-            .toolbarColorScheme(.dark, for: .navigationBar)
-            .toolbarBackground(
-                Color.pink,
-                for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
+                .navigationBarTitle(Text("Self Appreciation Jar"))
+                .navigationBarTitleDisplayMode(.large)
+                .toolbarColorScheme(.dark, for: .navigationBar)
+                .toolbarBackground(
+                    Color.pink,
+                    for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
             
-////        .navigationBarTitleDisplayMode(.inline)
-////        .navigationBarItems(leading: Text("Lead"), trailing: Text("Trail")) // Testing Navigation bar
-//        .background(Color.blue) // Helps to check the VStack
+            ////        .navigationBarTitleDisplayMode(.inline)
+            ////        .navigationBarItems(leading: Text("Lead"), trailing: Text("Trail")) // Testing Navigation bar
+            //        .background(Color.blue) // Helps to check the VStack
         } // NavigationView
     } //body
     
@@ -135,7 +144,7 @@ struct MessageView: View {
     ]
     @State private var textField: String = "Tap the airplane to make it move!"
     @State var moveOnCircularPath: Bool = false
-
+    
     var body: some View {
         ZStack {
             Text(textField)
@@ -171,7 +180,7 @@ struct ProfileView: View {
     
     @State private var bounceBall: Bool = false
     @State private var hiddenText: String = "Kick the ball!"
-
+    
     var selection: () -> Void
     
     var body: some View {
@@ -182,7 +191,7 @@ struct ProfileView: View {
                 .resizable()
                 .scaledToFill()
                 .frame(width: 40, height: 40)
-                //.border(Color.pink)
+            //.border(Color.pink)
                 .clipped()
                 .clipShape(Circle())
                 .offset(y: bounceBall ? -40 : 0)

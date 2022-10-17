@@ -11,6 +11,16 @@ class UserDefaultManager {
     
     static let shared = UserDefaultManager()
     
+    func getNotesList() -> [NoteItem] {
+        
+        var notesItems: [NoteItem] = []
+        guard let data = UserDefaults.standard.data(forKey: "notes") else { return notesItems }
+        if let list = try? JSONDecoder().decode([NoteItem].self, from: data) {
+            notesItems = list
+        }
+        return notesItems
+    }
+    
     func saveNotes(key: String, checklist: Checklist, completion: ((Bool) -> ())?) {
         do {
             let data = try JSONEncoder().encode(checklist)
