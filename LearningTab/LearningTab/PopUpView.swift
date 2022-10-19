@@ -116,11 +116,15 @@ struct PopUpView: View {
     
     
     func didTapAddTask() {
-        let id = items.reduce(0) { max($0, $1.id) } + 1
-        items.insert(NoteItem(id: id, text: taskText), at: 0)
-        taskText = ""
-        print("didTapAddTask: saving")
-        save()
+        if !taskText.isEmpty {
+            let id = items.reduce(0) { max($0, $1.id) } + 1
+            items.insert(NoteItem(id: id, text: taskText), at: 0)
+            taskText = ""
+            print("didTapAddTask: saving")
+            save()
+        } else {
+            // DS: assignment
+        }
     }
     
     func deleteNote() {
