@@ -44,7 +44,7 @@ struct ContentView: View {
             //                }
             //                .tag(2)
             
-            MessageView()
+            ListView()
                 .tabItem {
                     Image(systemName: "list.star")
                     Text("List")
@@ -68,7 +68,7 @@ struct ContentView: View {
     init() {
         //Set tab bar appearance
         UITabBar.appearance().barTintColor = UIColor.systemBlue //Tab bar color
-        UITabBar.appearance().backgroundColor = UIColor.lightGray //Tab bar color
+        UITabBar.appearance().backgroundColor = UIColor.white //Tab bar color
         UITabBar.appearance().unselectedItemTintColor = UIColor.black //Tab item color when not selected
         UITabBar.appearance().isOpaque = false
     }
@@ -100,14 +100,20 @@ struct HomeView: View { // HOME SCREEN
                 }
                 // DS: Adding GlassJar Image and positioning it
                 Spacer()
-                Image("GlassJar")
-                    .resizable()
-                //Define which method to use to keep the original dimensions when resizing
-                    .aspectRatio(contentMode: .fit)
-                //Declare the frame for your image
-                    .frame(width: 250, height: 300)
-                
-                    .foregroundColor(.accentColor)
+                ZStack {
+                    Image("GlassJar")
+                        .resizable()
+                    //Define which method to use to keep the original dimensions when resizing
+                        .aspectRatio(contentMode: .fit)
+                    //Declare the frame for your image
+                        .frame(width: 250, height: 300)
+                    
+                        .foregroundColor(.accentColor)
+                    Text("\(items.count)")
+                        .font(.system(size: 130))
+                        .offset(y: 30)
+                        .foregroundColor(.red)
+                }
                 Spacer()
                 Text("Total messages = \(items.count)")
                 // .rotationEffect(.radians(0))
@@ -133,7 +139,7 @@ struct HomeView: View { // HOME SCREEN
     } //body
     
 } //HomeView
-struct MessageView: View {
+struct ListView: View {
     
     private var imageList = [
         "hare.fill",
@@ -144,27 +150,31 @@ struct MessageView: View {
     ]
     @State private var textField: String = "Tap the airplane to make it move!"
     @State var moveOnCircularPath: Bool = false
+    @State var message = ""
     
     var body: some View {
-        ZStack {
-            Text(textField)
-            Circle()
-                .stroke(style: StrokeStyle(lineWidth: 3, lineCap: CGLineCap.round, dash: [8]))
-                .frame(width: 300, height: 300)
-                .foregroundColor(.purple)
-            
-            Image(systemName: "airplane")
-                .font(.largeTitle)
-                .foregroundColor(.red)
-                .offset(y: -150)
-                .rotationEffect(.degrees(moveOnCircularPath ? 0 : -360))
-                .animation(Animation.linear(duration: 5).repeatForever(autoreverses: false), value: moveOnCircularPath)
-            //.animation(.easeIn(duration: 5.0).repeatForever(autoreverses: false), value: show)
-                .onTapGesture {
-                    self.moveOnCircularPath.toggle()
-                    self.textField = ""
-                } //onTapGesture
+        NavigationView {
+            PopUpView(message: $message).environmentObject(ChecklistDocument())
         }
+//        ZStack {
+//            Text(textField)
+//            Circle()
+//                .stroke(style: StrokeStyle(lineWidth: 3, lineCap: CGLineCap.round, dash: [8]))
+//                .frame(width: 300, height: 300)
+//                .foregroundColor(.purple)
+//
+//            Image(systemName: "airplane")
+//                .font(.largeTitle)
+//                .foregroundColor(.red)
+//                .offset(y: -150)
+//                .rotationEffect(.degrees(moveOnCircularPath ? 0 : -360))
+//                .animation(Animation.linear(duration: 5).repeatForever(autoreverses: false), value: moveOnCircularPath)
+//            //.animation(.easeIn(duration: 5.0).repeatForever(autoreverses: false), value: show)
+//                .onTapGesture {
+//                    self.moveOnCircularPath.toggle()
+//                    self.textField = ""
+//                } //onTapGesture
+//        }
         //ScrollView(showsIndicators: false) {
         //    ForEach(imageList, id: \.self) { index in
         //        Image(systemName: "\(index)")

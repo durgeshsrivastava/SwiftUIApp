@@ -23,6 +23,8 @@ let dateFormatter = DateFormatter()
 //    }
 //}
 
+// Observable is for keep listening.
+// Codable - encode or decode object
 struct NoteItem: Identifiable, Codable {
     let id: Int
     let text: String
@@ -41,9 +43,7 @@ struct PopUpView: View {
     /// - Tag: UndoManager
     @Environment(\.undoManager) var undoManager
     
-#if os(iOS) // Edit mode doesn't exist in macOS.
     @Environment(\.editMode) var editMode
-#endif // os(iOS)
     
     /// The internal selection state.
     @State private var selection = Set<UUID>()
@@ -61,7 +61,9 @@ struct PopUpView: View {
     var alert: Alert {
         Alert(title: Text("Hey!"),
               message: Text("Are you sure you want to delete this item?"),
-              primaryButton: .destructive(Text("Delete"), action: nil),
+              primaryButton: .destructive(Text("Delete"), action: {
+            deleteNote()
+        }),
               secondaryButton: .cancel())
     }
     
@@ -92,17 +94,18 @@ struct PopUpView: View {
                         .multilineTextAlignment(.leading)
                     Text(item.dateText)
                         .font(.subheadline)
-                    Text(items.debugDescription)
+                    //Text(items.debugDescription)
                 }.onTapGesture{}
-                .onLongPressGesture {
-                    self.itemToDelete = item
-                    self.showAlert = true
-                }
+                    .onLongPressGesture {
+                        self.itemToDelete = item
+                        self.showAlert = true
+                    }
             }
             .alert(isPresented: $showAlert, content: {
                 alert
             })
         } // VStack
+        // When Vstack appears on screen. Check value and assign to Items
         .onAppear {
             items = UserDefaultManager.shared.getNotesList()
         }
@@ -120,7 +123,7 @@ struct PopUpView: View {
         save()
     }
     
-    mutating func deleteNote() {
+    func deleteNote() {
         guard let itemToDelete = itemToDelete else { return }
         items = items.filter { $0.id != itemToDelete.id }
         save()
@@ -129,7 +132,7 @@ struct PopUpView: View {
     func save() {
         guard let data = try? JSONEncoder().encode(items) else { return }
         UserDefaults.standard.set(data, forKey: "notes")
-        print(items)
+        print(items.count)
     }
     
     //        VStack {
