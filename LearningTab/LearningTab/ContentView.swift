@@ -18,9 +18,14 @@ struct ContentView: View {
     }()
     
     @State private var selection = 0
+    @State var isUnlocked = false
+    
     
     var body: some View {
-        
+        VStack {
+            if isUnlocked {
+                
+
         TabView(selection: $selection) {
             
             HomeView()
@@ -30,7 +35,7 @@ struct ContentView: View {
                 }
                 .tag(0)
             
-            Text("Search view")
+            SearchList()
                 .tabItem {
                     Image(systemName: "magnifyingglass")
                     Text("Search")
@@ -63,6 +68,13 @@ struct ContentView: View {
         } //TabView
         .accentColor(.blue) //Active tab color
         
+            }
+        }
+        .onAppear{
+            Authentication().authenticate { success in
+                isUnlocked = success
+            }
+        }
     } //body
     
     init() {
@@ -86,18 +98,50 @@ struct HomeView: View { // HOME SCREEN
     @State private var dim = false
     @State var message = ""
     @State var items: [NoteItem] = []
+    @State private var presentAlert = false
+    @State private var textFeildInput: String = ""
+    @State private var password: String = ""
+    @State private var isPresented: Bool = false
+    @State private var text: String = ""
+    @State private var itemsss = (1...5).map { "\($0)" }
     
     var body: some View {
         NavigationView {
             VStack (alignment: .center, spacing: 5) {
-                NavigationLink {
-                    PopUpView(message: $message).environmentObject(ChecklistDocument())
-                } label: {
-                    Image("IconWrite1")
-                        .imageScale(.large)
-                        .scaleEffect(0.15)
-                        .position(x:200, y:60)
-                }
+                //NavigationLink {
+                    // PopUpView(message: $message).environmentObject(ChecklistDocument())
+                    // Trying Alert mechanism
+                    Button {
+                        presentAlert = true
+                    } label: {
+                        Image("IconWrite1")
+                            .imageScale(.large)
+                            .scaleEffect(0.15)
+                            .position(x:200, y:60)
+                    } // label
+/* FUNCTIONING CODE - do not delete
+                    .alert("Appreciate Yourself", isPresented: $presentAlert, actions: {
+                       TextField("", text: $textFeildInput)
+                        Button("Add", action: {handleAddButtonClick()})
+                            .foregroundColor(.red)
+                        Button("Cancel", role: .cancel, action: {})
+                    }, message: {
+                        Text("Enter what you like about yourself!")
+                    } //message
+
+                    ) //alert
+*/
+                //Button(action: { presentAlert = true }) {
+                //    Text("Press")
+                //}
+ //Trying Custom Alert - didn't work. Need help from Ajay.
+                    CustomAlert(title: "Add Item", isShown: $presentAlert, text: $textFeildInput, onDone: { text in
+                        //self.text = text
+                        handleAddButtonClick()
+                        //self.itemsss.append(text)
+                        }
+                    )
+
                 // DS: Adding GlassJar Image and positioning it
                 Spacer()
                 ZStack {
@@ -110,10 +154,17 @@ struct HomeView: View { // HOME SCREEN
                     
                         .foregroundColor(.accentColor)
                     Text("\(items.count)")
-                        .font(.system(size: 130))
-                        .offset(y: 30)
+                        .font(.system(size: 40))
+                        .offset(y: -60)
                         .foregroundColor(.red)
-                }
+                    //let _ = print(items.count)
+                    ForEach(0..<items.count, id:\.self) { i in
+                        Image("Paper")
+                            .font(.system(size: 30))
+                            .offset(y: CGFloat(90-20*i/3))
+                            .foregroundColor(.yellow)
+                    } //ForEach
+                } // ZStack
                 Spacer()
                 Text("Total messages = \(items.count)")
                 // .rotationEffect(.radians(0))
@@ -138,7 +189,58 @@ struct HomeView: View { // HOME SCREEN
         } // NavigationView
     } //body
     
+    func handleAddButtonClick() {
+        if !textFeildInput.isEmpty {
+            items.append(NoteItem(id: UUID().uuidString, text: textFeildInput))
+            UserDefaultManager.save(notes: items)
+            textFeildInput = ""
+        }
+    }
+    
 } //HomeView
+
+
+struct CustomAlert: View {
+    
+    let screenSize = UIScreen.main.bounds
+    var title: String = ""
+    @Binding var isShown: Bool
+    @Binding var text: String
+    var onDone: (String) -> Void = { _ in }
+    var onCancel: () -> Void = { }
+    
+    
+    var body: some View {
+    
+        VStack(spacing: 20) {
+            Text(title)
+                .font(.headline)
+            Text("Message")
+            TextField("", text: $text)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+            HStack(spacing: 20) {
+                Button("Done") {
+                    self.isShown = false
+                    self.onDone(self.text)
+                }
+                Button("Cancel") {
+                    self.isShown = false
+                    self.onCancel()
+                }
+            }
+        }
+        .padding()
+        .frame(width: screenSize.width * 0.7, height: screenSize.height * 0.3)
+        //.background(Color(#colorLiteral(red: 0.9268686175, green: 0.9416290522, blue: 0.9456014037, alpha: 1)))
+        .background(Color.pink)
+        .clipShape(RoundedRectangle(cornerRadius: 20.0, style: .continuous))
+        .offset(y: isShown ? 0 : screenSize.height)
+        //.animation(.spring())
+        .shadow(color: Color(#colorLiteral(red: 0.8596749902, green: 0.854565084, blue: 0.8636032343, alpha: 1)), radius: 6, x: -9, y: -9)
+
+    }
+} // AZAlert
+
 struct ListView: View {
     
     private var imageList = [
@@ -186,6 +288,9 @@ struct ListView: View {
     } //body
     
 } //MessageView
+
+
+
 struct ProfileView: View {
     
     @State private var bounceBall: Bool = false

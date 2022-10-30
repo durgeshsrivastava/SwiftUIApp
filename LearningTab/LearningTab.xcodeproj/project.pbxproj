@@ -16,6 +16,8 @@
 		6386E27E28EE798D00800463 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6386E27D28EE798D00800463 /* Assets.xcassets */; };
 		6386E28128EE798D00800463 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6386E28028EE798D00800463 /* Preview Assets.xcassets */; };
 		6386E28828F284E800800463 /* PopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6386E28728F284E800800463 /* PopUpView.swift */; };
+		63A4EC7A290E30000097DADB /* SearchList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A4EC79290E30000097DADB /* SearchList.swift */; };
+		63A4EC7C290E3EA80097DADB /* Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A4EC7B290E3EA80097DADB /* Authentication.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +31,8 @@
 		6386E27D28EE798D00800463 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6386E28028EE798D00800463 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		6386E28728F284E800800463 /* PopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpView.swift; sourceTree = "<group>"; };
+		63A4EC79290E30000097DADB /* SearchList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchList.swift; sourceTree = "<group>"; };
+		63A4EC7B290E3EA80097DADB /* Authentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Authentication.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +67,8 @@
 			children = (
 				6386E27928EE798C00800463 /* LearningTabApp.swift */,
 				6386E27B28EE798C00800463 /* ContentView.swift */,
+				63A4EC7B290E3EA80097DADB /* Authentication.swift */,
+				63A4EC79290E30000097DADB /* SearchList.swift */,
 				6386E27D28EE798D00800463 /* Assets.xcassets */,
 				6386E27F28EE798D00800463 /* Preview Content */,
 				6386E28728F284E800800463 /* PopUpView.swift */,
@@ -157,8 +163,10 @@
 				6386E27C28EE798C00800463 /* ContentView.swift in Sources */,
 				6386E27A28EE798C00800463 /* LearningTabApp.swift in Sources */,
 				631A573628F520EE00D81465 /* ChecklistDocument.swift in Sources */,
+				63A4EC7A290E30000097DADB /* SearchList.swift in Sources */,
 				631A573A28F522F600D81465 /* ChecklistRow.swift in Sources */,
 				631A573C28F9189F00D81465 /* UserDefaultManager.swift in Sources */,
+				63A4EC7C290E3EA80097DADB /* Authentication.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,6 +298,7 @@
 				DEVELOPMENT_TEAM = D4ZZ55KH56;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "App want to use Autentication";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -319,6 +328,7 @@
 				DEVELOPMENT_TEAM = D4ZZ55KH56;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "App want to use Autentication";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

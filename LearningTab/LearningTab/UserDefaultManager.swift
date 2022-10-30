@@ -21,6 +21,11 @@ class UserDefaultManager {
         return notesItems
     }
     
+    class func save(notes: [NoteItem]) {
+        guard let data = try? JSONEncoder().encode(notes) else { return }
+        UserDefaults.standard.set(data, forKey: "notes")
+    }
+    
     func saveNotes(key: String, checklist: Checklist, completion: ((Bool) -> ())?) {
         do {
             let data = try JSONEncoder().encode(checklist)

@@ -26,7 +26,7 @@ let dateFormatter = DateFormatter()
 // Observable is for keep listening.
 // Codable - encode or decode object
 struct NoteItem: Identifiable, Codable {
-    let id: Int
+    let id: String
     let text: String
     var date = Date()
     var dateText: String {
@@ -117,13 +117,12 @@ struct PopUpView: View {
     
     func didTapAddTask() {
         if !taskText.isEmpty {
-            let id = items.reduce(0) { max($0, $1.id) } + 1
-            items.insert(NoteItem(id: id, text: taskText), at: 0)
+            items.insert(NoteItem(id: UUID().uuidString, text: taskText), at: 0)
             taskText = ""
             print("didTapAddTask: saving")
             save()
         } else {
-            // DS: assignment
+            
         }
     }
     
@@ -134,9 +133,7 @@ struct PopUpView: View {
     }
     
     func save() {
-        guard let data = try? JSONEncoder().encode(items) else { return }
-        UserDefaults.standard.set(data, forKey: "notes")
-        print(items.count)
+        UserDefaultManager.save(notes: items)
     }
     
     //        VStack {
